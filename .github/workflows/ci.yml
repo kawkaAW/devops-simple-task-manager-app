@@ -28,7 +28,7 @@ jobs:
         run: docker compose up -d --build
 
       - name: Wait for services to start
-        run: sleep 10
+        run: sleep 15
 
       - name: Test application through Nginx
         run: curl --fail http://localhost:8080

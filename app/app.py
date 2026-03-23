@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for
 import psycopg2
 import os
+import time
 
 app = Flask(__name__)
 
@@ -17,17 +18,29 @@ def get_db_connection():
 
 
 def init_db():
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS tasks (
-            id SERIAL PRIMARY KEY,
-            title VARCHAR(255) NOT NULL
-        );
-    """)
-    conn.commit()
-    cur.close()
-    conn.close()
+    max_retries = 10
+    retry_delay = 3
+
+    for attempt in range(max_retries):
+        try:
+            conn = get_db_connection()
+            cur = conn.cursor()
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS tasks (
+                    id SERIAL PRIMARY KEY,
+                    title VARCHAR(255) NOT NULL
+                );
+            """)
+            conn.commit()
+            cur.close()
+            conn.close()
+            print("Database initialized successfully.")
+            return
+        except Exception as e:
+            print(f"Database connection failed (attempt {attempt + 1}/{max_retries}): {e}")
+            time.sleep(retry_delay)
+
+    raise Exception("Could not connect to the database after multiple attempts.")
 
 
 @app.route("/")
