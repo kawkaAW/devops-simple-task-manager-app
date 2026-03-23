@@ -1,0 +1,37 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create .env file
+        run: |
+          echo "POSTGRES_DB=taskdb" >> .env
+          echo "POSTGRES_USER=taskuser" >> .env
+          echo "POSTGRES_PASSWORD=taskpassword" >> .env
+          echo "POSTGRES_HOST=db" >> .env
+          echo "POSTGRES_PORT=5432" >> .env
+
+      - name: Build and start containers
+        run: docker compose up -d --build
+
+      - name: Wait for services to start
+        run: sleep 10
+
+      - name: Test application through Nginx
+        run: curl --fail http://localhost:8080
+
+      - name: Stop and remove containers
+        run: docker compose down
