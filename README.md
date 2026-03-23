@@ -14,3 +14,12 @@ User>Nginx>Flask>PostgreSQL
 
 Run project:
 docker compose up --build
+
+This project includes a CI pipeline using GitHub Actions that:
+builds Docker images
+starts full multi-container environment (Flask + PostgreSQL + Nginx)
+waits for services to be ready
+tests application via HTTP request
+cleans up containers
+
+[![CI Pipeline](https://github.com/kawkaAW/devops-simple-task-manager-app/actions/workflows/ci.yml/badge.svg)](https://github.com/kawkaAW/devops-simple-task-manager-app/actions/workflows/ci.yml)
